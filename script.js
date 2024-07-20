@@ -1,29 +1,36 @@
-function appendToDisplay(value) {
-    document.getElementById('display').value += value;
-}
+const apiKey = 'a578f88b1b63bfa4b25d5af27df49b24';
 
-function clearDisplay() {
-    document.getElementById('display').value = '';
-}
+async function getWeather() {
+    console.log('Get Weather button clicked');
+    const city = document.getElementById('city').value;
+    console.log('City:', city);
+    
+    const url = 'https://api.openweathermap.org/data/2.5/weather?q=Hyderabad&appid=a578f88b1b63bfa4b25d5af27df49b24&units=metric';
 
-function calculate() {
-    let expression = document.getElementById('display').value;
-
-    // Replace certain functions with their respective JavaScript functions
-    expression = expression.replace(/sin/g, 'Math.sin');
-    expression = expression.replace(/cos/g, 'Math.cos');
-    expression = expression.replace(/tan/g, 'Math.tan');
-    expression = expression.replace(/log/g, 'Math.log10');
-
-    // Replace degrees with radians for trigonometric functions
-    expression = expression.replace(/(Math.sin|Math.cos|Math.tan)\(([^)]+)\)/g, function(match, func, arg) {
-        return func + '(' + (parseFloat(arg) * Math.PI / 180) + ')';
-    });
-
+    
     try {
-        let result = eval(expression);
-        document.getElementById('display').value = result;
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log('API Response:', data);
+
+        if (data.cod === 200) {
+            displayWeather(data);
+        } else {
+            alert('City not found');
+        }
     } catch (error) {
-        document.getElementById('display').value = 'Error';
+        console.error('Error fetching weather data:', error);
     }
+}
+
+function displayWeather(data) {
+    console.log('Displaying Weather:', data);
+    const weatherInfo = document.getElementById('weather-info');
+    weatherInfo.innerHTML = `
+        <h2>${data.name}, ${data.sys.country}</h2>
+        <p>Temperature: ${data.main.temp}°C</p>
+        <p>Weather: ${data.weather[0].description}</p>
+        <p>Humidity: ${data.main.humidity}%</p>
+        <p>Wind Speed: ${data.wind.speed} m/s</p>
+    `;
 }
